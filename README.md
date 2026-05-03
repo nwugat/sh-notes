@@ -20,6 +20,7 @@ Trying to mimic Obsidian's features with small scripts.
 - perl
 - fd
 - rg
+- fzf
 
 ## Features I want
 
