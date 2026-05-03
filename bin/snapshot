@@ -4,5 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
+source "$SCRIPT_DIR/../lib/note-names.sh"
 
-git add "$NOTES_DIR/*.md" ; git commit -m "$(date +"%Y-%m-%d-%H:%M Snapshot")"
+find_notes_0 | xargs -0 git add
+git commit -m "$(date +"%Y-%m-%d-%H:%M Snapshot")"
