@@ -5,13 +5,14 @@
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 source "$SCRIPT_DIR/../lib/tags.sh"
+source "$SCRIPT_DIR/../lib/note-names.sh"
 
 selected_tags=$(find_tags | sort | uniq | fzf --multi)
 
 test -z "$selected_tags" && { echo "^Cancelled" >&2 ; exit 0; }
 
 # pre-filter: remove all files that don't even match the keywords
-files_candidates="$(fd --type file --extension md . "$NOTES_DIR")"
+files_candidates="$(find_notes)"
 while IFS= read -r tag; do
   files_candidates="$(printf "%s" "$files_candidates" | tr '\n' '\0' | xargs -0 rg -l -F "$tag")"
 done <<< "$selected_tags"
