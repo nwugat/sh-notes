@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# Takes SORTED list of UNIQUE tags and outputs a tree view
+
+#TODO: include occurrences
+#TODO: hide root node
+
 import sys
 
 KEY_TEXT = "text"
@@ -13,7 +18,7 @@ tree_root = {
     }
 
 # create tree structure
-# too many nested for loops :S
+# too many nested loops :S
 for tag in tags:
     tag_parts = tag.split("/")
 

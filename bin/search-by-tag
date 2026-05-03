@@ -1,14 +1,17 @@
 #!/usr/bin/env sh
 
-here_path="$(realpath $(dirname $0))"
-notes_root="$(realpath $here_path/..)"
+# set -euo pipefail
 
-selected_tags=$($here_path/print-tags.sh | fzf --multi)
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+source "$SCRIPT_DIR/../lib/tags.sh"
 
-test -z "$selected_tags" && { echo "^Cancelled" ; exit 0; }
+selected_tags=$(find_tags | sort | uniq | fzf --multi)
+
+test -z "$selected_tags" && { echo "^Cancelled" >&2 ; exit 0; }
 
 # pre-filter: remove all files that don't even match the keywords
-files_candidates="$(rg --files --glob *.md "$notes_root")"
+files_candidates="$(fd --type file --extension md . "$NOTES_DIR")"
 while IFS= read -r tag; do
   files_candidates="$(printf "%s" "$files_candidates" | tr '\n' '\0' | xargs -0 rg -l -F "$tag")"
 done <<< "$selected_tags"
@@ -17,7 +20,7 @@ done <<< "$selected_tags"
 files_result=""
 while IFS= read -r file; do
   file_stays=true
-  processed_tags=$("$here_path/process-tags.pl" "$file" | sort | uniq)
+  processed_tags=$("$SCRIPT_DIR/../scripts/process-tags.pl" --deep "$file" | sort | uniq)
   while IFS= read -r tag; do
     # $processed_tags contains $tag? $file_stays stays true, else = false, else = false
     printf "%s" "$processed_tags" | grep -Fxq "$tag" || {
@@ -28,10 +31,10 @@ while IFS= read -r file; do
   test "$file_stays" = true && files_result=$(printf "%s\n%s" "$files_result" "$file")
 done <<< "$files_candidates"
 
-test -z "$files_result" && { echo "No matching files found" ; exit 0; }
+test -z "$files_result" && { echo "No matching files found" >&2 ; exit 0; }
 
 selected_file=$(echo "$files_result" | fzf)
 
-test -z "$selected_file" && { echo "No file selected" ; exit 0; }
+test -z "$selected_file" && { echo "No file selected" >&2 ; exit 0; }
 
-nvim +"cd $notes_root" "$selected_file"
+nvim +"cd $NOTES_DIR" "$selected_file"

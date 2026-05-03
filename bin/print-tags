@@ -1,0 +1,66 @@
+#!/usr/bin/env sh
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+source "$SCRIPT_DIR/../lib/tags.sh"
+
+# "match mode": "single match", "expand match", "tree". Mutually exclusive
+mode="single" # single|expand|tree
+# only single & expand accept indenting
+indent=false
+
+# parse opts
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            echo "Usage: $0 [-h|--help] [[-x|--expand]|[-t|--tree]] [-i|--indent]"
+            exit 0
+            ;;
+        -t|--tree)
+          mode="tree"
+          shift
+          ;;
+        -x|--expand)
+          mode="expand"
+          shift
+          ;;
+        -i|--indent)
+          indent=true
+          shift
+          ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+#TODO implement indent
+
+case $mode in
+  "single")
+    find_tags | "$SCRIPT_DIR/../scripts/process-tag-occurrences.py" | sort
+    exit 0
+    ;;
+  "expand")
+    find_tags_expanded | sort
+    exit 0
+    ;;
+  "tree")
+    find_tags | sort | uniq | "$SCRIPT_DIR/../scripts/tag-list-to-tree.py"
+    exit 0
+    ;;
+  *)
+    echo "Unknown mode \"$1\"" >&2
+    exit 1
+    ;;
+esac
