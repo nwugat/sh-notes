@@ -7,6 +7,8 @@ source "$SCRIPT_DIR/../lib/common.sh"
 source "$SCRIPT_DIR/../lib/tags.sh"
 source "$SCRIPT_DIR/../lib/note-names.sh"
 
+#TODO generalize to just 'search'
+
 selected_tags=$(find_tags | sort | uniq | fzf --multi)
 
 test -z "$selected_tags" && { echo "No tags selected" >&2 ; exit 0; }

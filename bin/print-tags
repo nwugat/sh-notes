@@ -6,6 +6,9 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 source "$SCRIPT_DIR/../lib/tags.sh"
 
+#TODO: generalize to just 'tags'. Put current functionality under subcommand 'print'
+#TODO: add 'level' option
+
 # "match mode": "single match", "expand match", "tree". Mutually exclusive
 mode="single" # single|expand|tree
 # only single & expand accept indenting
