@@ -24,12 +24,12 @@ Trying to mimic Obsidian's features with small scripts.
 
 ## Features I want
 
-- tag
-    - search all tags
-    - search notes by tag
-    - rename tag
-- search notes by name
-    - file name
-    - aliases
-- note query
-    - search notes by metadata
+- [ ] tag
+    - [ ] search all tags
+    - [ ] search notes by tag
+    - [ ] rename tag
+- [ ] search notes by name
+    - [ ] file name
+    - [ ] aliases
+- [ ] note query
+    - [ ] search notes by metadata
