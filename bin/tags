@@ -6,31 +6,36 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 source "$SCRIPT_DIR/../lib/tags.sh"
 
-#TODO: generalize to just 'tags'. Put current functionality under subcommand 'print'
 #TODO: add 'level' option
 
+cmd_help() {
+cat <<EOF
+Usage:
+
+h|help
+p|print [[-x|--expand]|[-t|--tree]] [-i|--indent]
+EOF
+}
+
+cmd_print() {
 # "match mode": "single match", "expand match", "tree". Mutually exclusive
-mode="single" # single|expand|tree
+print_mode="single" # single|expand|tree
 # only single & expand accept indenting
-indent=false
+indent_flag=false
 
 # parse opts
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -h|--help)
-            echo "Usage: $0 [-h|--help] [[-x|--expand]|[-t|--tree]] [-i|--indent]"
-            exit 0
-            ;;
         -t|--tree)
-          mode="tree"
+          print_mode="tree"
           shift
           ;;
         -x|--expand)
-          mode="expand"
+          print_mode="expand"
           shift
           ;;
         -i|--indent)
-          indent=true
+          indent_flag=true
           shift
           ;;
         --)
@@ -38,7 +43,7 @@ while [[ $# -gt 0 ]]; do
             break
             ;;
         -*)
-            echo "Unknown option: $1" >&2
+            echo "Unknown option for subcommand 'print': $1" >&2
             exit 1
             ;;
         *)
@@ -47,9 +52,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# print
 #TODO implement indent
-
-case $mode in
+case $print_mode in
   "single")
     find_tags | "$SCRIPT_DIR/../scripts/process-tag-occurrences.py" | sort
     exit 0
@@ -67,3 +72,30 @@ case $mode in
     exit 1
     ;;
 esac
+
+unset print_mode
+unset indent_flag
+}
+
+main() {
+# parse subcommands
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        h|help)
+            cmd_help
+            exit 0
+            ;;
+        p|print)
+            shift
+            cmd_print "$@"
+            break
+            ;;
+        *)
+            echo "Unknown subcommand: $1" >&2
+            exit 1
+            ;;
+    esac
+done
+}
+
+main "$@"
