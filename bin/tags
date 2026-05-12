@@ -6,7 +6,15 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 source "$SCRIPT_DIR/../lib/tags.sh"
 
-#TODO: add 'level' option
+indent_tags() {
+  while IFS= read -r line; do
+    local level=$(echo "$line" | tr -dc '/' | wc -c)
+    for i in $(seq 1 "$level"); do
+      printf '\t'
+    done
+    echo "$line"
+  done
+}
 
 cmd_help() {
 cat <<EOF
@@ -21,7 +29,7 @@ cmd_print() {
 # "match mode": "single match", "expand match", "tree". Mutually exclusive
 print_mode="single" # single|expand|tree
 # only single & expand accept indenting
-indent_flag=false
+indent_filter=cat
 
 # parse opts
 while [[ $# -gt 0 ]]; do
@@ -35,7 +43,7 @@ while [[ $# -gt 0 ]]; do
           shift
           ;;
         -i|--indent)
-          indent_flag=true
+          indent_filter=indent_tags
           shift
           ;;
         --)
@@ -56,11 +64,11 @@ done
 #TODO implement indent
 case $print_mode in
   "single")
-    find_tags | "$SCRIPT_DIR/../scripts/process-tag-occurrences.py" | sort
+    find_tags | "$SCRIPT_DIR/../scripts/process-tag-occurrences.py" | sort | $indent_filter
     exit 0
     ;;
   "expand")
-    find_tags_expanded | sort
+    find_tags_expanded | sort | $indent_filter
     exit 0
     ;;
   "tree")
@@ -74,7 +82,7 @@ case $print_mode in
 esac
 
 unset print_mode
-unset indent_flag
+unset indent_filter
 }
 
 main() {
